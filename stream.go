@@ -9,19 +9,12 @@ import (
 	"path/filepath"
 )
 
-type XmlStreamParser interface {
-	ProcessStartElement(xml.StartElement) error
-	ProcessEndElement(xml.EndElement) error
-	ProcessCharData(xml.CharData) error
-	ProcessComment(xml.Comment) error
-	ProcessProcInst(xml.ProcInst) error
-	ProcessDirective(xml.Directive) error
-}
-
-// Parse XML from io.Reader interface with XmlStreamParser
+// Parse XML from io.Reader interface with XmlStreamParser.
 func ParseXMLReader(reader io.Reader, streamParser XmlStreamParser) error {
 	decoder := xml.NewDecoder(reader)
+
 	for {
+
 		if token, err := decoder.Token(); err != nil && errors.Is(err, io.EOF) {
 			return nil
 		} else if err != nil {
@@ -60,17 +53,23 @@ func ParseXMLReader(reader io.Reader, streamParser XmlStreamParser) error {
 	}
 }
 
-// Parse XML from fileName with XmlStreamParser
-func ParseXMLFile(fileName string, streamParser interface{}) error {
-	if absPath, err := filepath.Abs(fileName); err != nil {
+// Parse XML from fileName with XmlStreamParser.
+func ParseXMLFile(fileName string, streamParser XmlStreamParser) (err error) {
+	var (
+		absPath string
+		reader  io.ReadCloser
+	)
+	absPath, err = filepath.Abs(fileName)
+	if err != nil {
 		return err
-	} else if reader, err := os.Open(absPath); err != nil {
-		return err
-	} else if parser, ok := streamParser.(XmlStreamParser); ok {
-		return ParseXMLReader(reader, parser)
-	} else if parser, ok := streamParser.(XMLInstanceGrabber); ok {
-		return GrabTargetsFromXML(reader, parser)
-	} else {
-		return errors.New(fmt.Sprintf("unexpected parser %T", streamParser))
 	}
+
+	reader, err = os.Open(absPath)
+	if err != nil {
+		return err
+	}
+
+	defer reader.Close()
+
+	return ParseXMLReader(reader, streamParser)
 }
