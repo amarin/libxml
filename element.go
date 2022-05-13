@@ -86,5 +86,5 @@ func (elem *Element) OnEnter(fun EnterFunc) { elem.enter = fun }
 // OnData set function to process current element data during parse.
 func (elem *Element) OnData(fun DataFunc) { elem.data = fun }
 
-// OnEnter set function to execute on exiting current element during parse.
+// OnExit set function to execute on exiting current element during parse.
 func (elem *Element) OnExit(fun ExitFunc) { elem.exit = fun }
