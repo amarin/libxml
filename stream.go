@@ -10,12 +10,12 @@ import (
 )
 
 // ParseXMLReader parses XML taken from io.Reader interface with XmlStreamParser.
-func ParseXMLReader(reader io.Reader, streamParser XmlStreamParser) error {
+func ParseXMLReader(reader io.Reader, streamParser XmlStreamParser) (err error) {
+	var token xml.Token
 	decoder := xml.NewDecoder(reader)
 
 	for {
-
-		if token, err := decoder.Token(); err != nil && errors.Is(err, io.EOF) {
+		if token, err = decoder.Token(); err != nil && errors.Is(err, io.EOF) {
 			return nil
 		} else if err != nil {
 			return errors.New(fmt.Sprintf("token error: %v", err))
@@ -25,27 +25,27 @@ func ParseXMLReader(reader io.Reader, streamParser XmlStreamParser) error {
 			t := xml.CopyToken(token)
 			switch v := t.(type) {
 			case xml.CharData:
-				if err := streamParser.ProcessCharData(v); err != nil {
+				if err = streamParser.ProcessCharData(v); err != nil {
 					return err
 				}
 			case xml.Comment:
-				if err := streamParser.ProcessComment(v); err != nil {
+				if err = streamParser.ProcessComment(v); err != nil {
 					return err
 				}
 			case xml.Directive:
-				if err := streamParser.ProcessDirective(v); err != nil {
+				if err = streamParser.ProcessDirective(v); err != nil {
 					return err
 				}
 			case xml.ProcInst:
-				if err := streamParser.ProcessProcInst(v); err != nil {
+				if err = streamParser.ProcessProcInst(v); err != nil {
 					return err
 				}
 			case xml.StartElement:
-				if err := streamParser.ProcessStartElement(v); err != nil {
+				if err = streamParser.ProcessStartElement(v); err != nil {
 					return err
 				}
 			case xml.EndElement:
-				if err := streamParser.ProcessEndElement(v); err != nil {
+				if err = streamParser.ProcessEndElement(v); err != nil {
 					return err
 				}
 			}
