@@ -69,7 +69,14 @@ func ParseXMLFile(fileName string, streamParser XmlStreamParser) (err error) {
 		return err
 	}
 
-	defer reader.Close()
+	defer func() {
+		if p := recover(); p != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "file %v\npanic: %v", fileName, p)
+		}
+		if closeErr := reader.Close(); closeErr != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "file %v\nclose: %v", fileName, closeErr)
+		}
+	}()
 
 	return ParseXMLReader(reader, streamParser)
 }
