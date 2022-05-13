@@ -35,17 +35,18 @@ func (parser *StreamParser) Parse(name TagName, in EnterFunc, dataFunc DataFunc,
 // ProcessComment implements comments parse. Implements XmlStreamParser.
 func (parser StreamParser) ProcessComment(_ xml.Comment) error { return nil }
 
-// ProcessComment implements processing instruction parse. Implements XmlStreamParser.
+// ProcessProcInst implements processing instruction parse. Implements XmlStreamParser.
 func (parser StreamParser) ProcessProcInst(_ xml.ProcInst) error { return nil }
 
-// ProcessComment implements directive parse. Implements XmlStreamParser.
+// ProcessDirective implements directive parse. Implements XmlStreamParser.
 func (parser StreamParser) ProcessDirective(_ xml.Directive) error { return nil }
 
+// Root returns root Element.
 func (parser *StreamParser) Root() *Element {
 	return parser.current.Root()
 }
 
-// ProcessStartElement do processing of specified token start. Implements XmlStreamParser.
+// ProcessStartElement processes token start. Implements XmlStreamParser.
 // It checks if current Element has specified Tag child, set detected child element as current
 // and executes OnEnter function if defined.
 // If Strict mode set and no child defined returns with error.
@@ -74,8 +75,8 @@ func (parser *StreamParser) ProcessStartElement(token xml.StartElement) (err err
 	return nil
 }
 
-// ProcessCharData does tag data processing. Processing function to required tag should set with OnData.
-// Returns error from current tag processing function if encountered..
+// ProcessCharData processes tag (string) data. Processing Element should have OnData function set.
+// Returns error from current tag processing function if encountered.
 func (parser *StreamParser) ProcessCharData(data xml.CharData) error {
 	if parser.current.data != nil {
 		return parser.current.data(data)
@@ -84,9 +85,9 @@ func (parser *StreamParser) ProcessCharData(data xml.CharData) error {
 	return nil
 }
 
-// ProcessEndElement does processing of tag close.
-// By default tag closing simply return to previous element.
-// Calls ExitFunc for current element set with OnExit method of Element.
+// ProcessEndElement processes tag closing.
+// Calls ExitFunc for current element if set with OnExit method of Element.
+// If no exit processing function set to current Element it simply returns previous element.
 // Returns ExitFunc error if encountered.
 func (parser *StreamParser) ProcessEndElement(element xml.EndElement) (err error) {
 	tagName := TagName(element.Name.Local)
@@ -109,7 +110,7 @@ func (parser *StreamParser) ProcessEndElement(element xml.EndElement) (err error
 }
 
 // NewParser creates new parser.
-// If strict is false, any unexpected tag will silently ignored.
+// If strict is false, any unexpected tag will be silently ignored.
 // If strict is true structure should define all required tag elements
 // with parser root or some element tag method, f.e. parser.Tag("ignore", "this", "tree").
 // In struct mode any unexpected tag will produce parsing error.
