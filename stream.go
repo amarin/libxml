@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-// Parse XML from io.Reader interface with XmlStreamParser.
+// ParseXMLReader parses XML taken from io.Reader interface with XmlStreamParser.
 func ParseXMLReader(reader io.Reader, streamParser XmlStreamParser) error {
 	decoder := xml.NewDecoder(reader)
 
@@ -53,7 +53,7 @@ func ParseXMLReader(reader io.Reader, streamParser XmlStreamParser) error {
 	}
 }
 
-// Parse XML from fileName with XmlStreamParser.
+// ParseXMLFile parses XML file specified by fileName with XmlStreamParser.
 func ParseXMLFile(fileName string, streamParser XmlStreamParser) (err error) {
 	var (
 		absPath string
